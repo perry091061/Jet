@@ -11,6 +11,8 @@ import GameplayKit
 
 class GameScene: SKScene {
     var shipName: String = "F22-Jet"
+    var lastUpdateTime : TimeInterval = 0
+    var shipTouch : Set<UITouch>?
     
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor.red
@@ -25,15 +27,56 @@ class GameScene: SKScene {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let touch = touches.first
-        let location = touch?.location(in: self)
-        var ship = self.childNode(withName: shipName)
-        ship?.position = location ?? CGPoint(x:100,y:100)
+        shipTouch = touches
     }
     
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        shipTouch = touches
+    }
     
+    func calculateLocation(touches: Set<UITouch>) -> CGPoint
+    {
+        let touch = touches.first
+        let location = touch?.location(in: self)
+        return location ?? CGPoint(x:0,y:0)
+    }
+    func moveShip(point: CGPoint)
+    {
+        let ship = self.childNode(withName: shipName)
+        ship?.position = point
+    }
     
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
+        
+        if lastUpdateTime == 0
+        {
+            lastUpdateTime = currentTime
+        }
+        
+        let timeDelta = currentTime - lastUpdateTime
+        
+        if let shipTouched = self.shipTouch
+        {
+            moveShipTowardPoint(point:calculateLocation(touches: shipTouched), timeDelta:timeDelta)
+        }
+        self.lastUpdateTime = currentTime
+    }
+    
+    func moveShipTowardPoint(point:CGPoint, timeDelta:TimeInterval)
+    {
+        let shipSpeed:CGFloat = 130.0 // points per second
+        let ship = self.childNode(withName: shipName)!
+        let distanceLeft:CGFloat = sqrt(pow(ship.position.x - point.x, 2) +
+            pow(ship.position.y - point.y, 2));
+        if (distanceLeft > 4)
+        {
+            let distanceToTravel:CGFloat = CGFloat(timeDelta) * shipSpeed
+            let angle:CGFloat = atan2(point.y - ship.position.y, point.x - ship.position.x)
+            let yOffset:CGFloat = distanceToTravel * sin(angle);
+            let xOffset:CGFloat = distanceToTravel * cos(angle);
+            ship.position = CGPoint(x:ship.position.x + xOffset,
+                                    y:ship.position.y + yOffset);
+        }
     }
 }
