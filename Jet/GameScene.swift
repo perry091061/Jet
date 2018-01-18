@@ -41,11 +41,6 @@ class GameScene: SKScene {
         let location = touch?.location(in: self)
         return location ?? CGPoint(x:0,y:0)
     }
-    func moveShip(point: CGPoint)
-    {
-        let ship = self.childNode(withName: shipName)
-        ship?.position = point
-    }
     
     override func update(_ currentTime: TimeInterval) {
         
