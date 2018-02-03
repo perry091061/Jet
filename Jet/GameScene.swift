@@ -17,7 +17,13 @@ class GameScene: SKScene {
     var shipTouch : Set<UITouch>?
     
     override func didMove(to view: SKView) {
-        self.backgroundColor = SKColor.red
+        let texture = SKTexture(imageNamed: "background")
+        let background = SKSpriteNode(texture: texture, color: SKColor.clear, size:CGSize(width: self.size.width, height: self.size.height))
+        background.position = CGPoint(x:self.frame.size.width / 2,y:self.frame.size.height / 2)
+        background.zPosition = -1
+        self.addChild(background)
+        
+        //self.backgroundColor = SKColor.red
         let ship : SKSpriteNode = SKSpriteNode(imageNamed: shipName)
         let x = self.frame.size.width / 2
         let y = self.frame.size.height / 2
