@@ -11,7 +11,9 @@ import GameplayKit
 
 class GameScene: SKScene {
     var shipName: String = "F22-Jet"
+    let missleName = "missle"
     var lastUpdateTime : TimeInterval = 0
+    var lastShotFired  : TimeInterval = 0
     var shipTouch : Set<UITouch>?
     
     override func didMove(to view: SKView) {
@@ -24,7 +26,12 @@ class GameScene: SKScene {
         ship.position = CGPoint(x: x, y: y)
         self.addChild(ship)
         ship.scale(to: CGSize(width: 80, height: 80))
+        
+       
+        
     }
+    
+    
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         shipTouch = touches
@@ -54,10 +61,70 @@ class GameScene: SKScene {
         if let shipTouched = self.shipTouch
         {
             moveShipTowardPoint(point:calculateLocation(touches: shipTouched), timeDelta:timeDelta)
+            
+            if (currentTime - self.lastShotFired > 0.5)
+            {
+                self.shoot()
+                self.lastShotFired = currentTime
+             }
+        }
+        if arc4random_uniform(1000) <= 15
+        {
+            dropAsteroid()
         }
         self.lastUpdateTime = currentTime
     }
     
+    func dropAsteroid()
+    {
+        let sideSize:CGFloat =  15.0  +  CGFloat(arc4random_uniform(30))
+        let maxX:CGFloat = self.size.width
+        let quarterX:CGFloat = maxX / 4
+        let half  = UInt32(maxX +  quarterX * 2)
+        
+        let startX: CGFloat = CGFloat(arc4random_uniform(half)) - quarterX
+        let startY: CGFloat = self.size.height + sideSize
+        let endX  = arc4random_uniform(UInt32(maxX));
+        let endY  = 0 - sideSize
+        let random = arc4random_uniform(21) + 1
+        
+        let num = random < 10 ? "0\(random)" : "\(random)"
+        
+        let asteroid = SKSpriteNode(imageNamed: "asteroids_demo_\(num)")
+        asteroid.name = "obstacle"
+        self.addChild(asteroid)
+        asteroid.position = CGPoint(x:startX,y:startY)
+        
+        
+        let move = SKAction.move(to: CGPoint(x:CGFloat(endX),y:CGFloat(endY)), duration: Double(3 + arc4random_uniform(4)))
+        let remove = SKAction.removeFromParent()
+        let action = SKAction.sequence([move,remove])
+        let spin = SKAction.rotate(byAngle: 3, duration: Double(arc4random_uniform(2) + 1))
+        let spinForever = SKAction.repeatForever(spin)
+        let sequence = SKAction.sequence([action,spinForever])
+        asteroid.run(sequence)
+        
+    }
+    
+    
+    func shoot()
+    {
+         let ship = self.childNode(withName: shipName)!
+         let missle = SKSpriteNode(imageNamed: missleName)
+         missle.name = "missle"
+         missle.scale(to: CGSize(width:40,height:40))
+         missle.position = ship.position
+         missle.position.y += missle.size.height / 2
+         self.addChild(missle)
+         let move = SKAction.moveBy(x: 0, y: self.size.height, duration: 0.5)
+         let remove = SKAction.removeFromParent()
+         let action = SKAction.sequence([move,remove])
+        
+         missle.run(action)
+        
+        
+        
+    }
     func moveShipTowardPoint(point:CGPoint, timeDelta:TimeInterval)
     {
         let shipSpeed:CGFloat = 130.0 // points per second
