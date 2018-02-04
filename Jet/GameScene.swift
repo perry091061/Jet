@@ -12,6 +12,7 @@ import GameplayKit
 class GameScene: SKScene {
     var shipName: String = "F22-Jet"
     let missleName = "missle"
+    let asteroidName = "asteroid"
     var lastUpdateTime : TimeInterval = 0
     var lastShotFired  : TimeInterval = 0
     var shipTouch : Set<UITouch>?
@@ -78,7 +79,25 @@ class GameScene: SKScene {
         {
             dropAsteroid()
         }
+        checkCollisions()
+        
         self.lastUpdateTime = currentTime
+    }
+    
+    func checkCollisions()
+    {
+        var missle = self.childNode(withName: missleName)
+        self.enumerateChildNodes(withName: asteroidName, using: {(object, stop) in
+            
+            if let missle = missle, missle.intersects(object)
+            
+            {
+                self.shipTouch = nil
+                missle.removeFromParent()
+                object.removeFromParent()
+            }
+            
+        })
     }
     
     func dropAsteroid()
@@ -97,7 +116,8 @@ class GameScene: SKScene {
         let num = random < 10 ? "0\(random)" : "\(random)"
         
         let asteroid = SKSpriteNode(imageNamed: "asteroids_demo_\(num)")
-        asteroid.name = "obstacle"
+        asteroid.name = asteroidName
+        asteroid.zPosition = 1
         self.addChild(asteroid)
         asteroid.position = CGPoint(x:startX,y:startY)
         
