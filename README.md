@@ -1,8 +1,7 @@
 
 # Jet - In progress
 
-Jet is a simple game that allows the user to shoot down donuts on iOS and Mac.
-
+Jet is a simple game that allows the user to shoot down donuts on iOS and Mac. Donuts not yet introduced.
 
 
 ## Installation and Setup
