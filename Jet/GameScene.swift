@@ -49,6 +49,10 @@ class GameScene: SKScene {
         shipTouch = touches
     }
     
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        shipTouch = nil
+    }
+    
     func calculateLocation(touches: Set<UITouch>) -> CGPoint
     {
         let touch = touches.first
@@ -74,6 +78,7 @@ class GameScene: SKScene {
                 self.shoot()
                 self.lastShotFired = currentTime
              }
+             
         }
         if arc4random_uniform(1000) <= 15
         {
